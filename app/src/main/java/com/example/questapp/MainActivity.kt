@@ -12,13 +12,15 @@ import android.view.MenuItem
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.questapp.data.Route
+import com.example.questapp.data.RoutePoint
 import com.example.questapp.databinding.ActivityMainBinding
 import kotlin.math.log
 import kotlin.reflect.typeOf
 //import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var itemsList: ArrayList<String>
+    private lateinit var itemsList: ArrayList<Route>
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -29,7 +31,7 @@ class MainActivity : AppCompatActivity() {
 
 
 //      kinda trying to create recycler view, sorta works
-        itemsList = ArrayList<String>()
+        itemsList = ArrayList()
         prepareItems()
         val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
         val customAdapter = CustomAdapter(this, itemsList)
@@ -62,19 +64,17 @@ class MainActivity : AppCompatActivity() {
         return true
     }
     private fun prepareItems() {
-        itemsList.add("Item 1")
-        itemsList.add("Item 2")
-        itemsList.add("Item 3")
-        itemsList.add("Item 4")
-        itemsList.add("Item 5")
-        itemsList.add("Item 6")
-        itemsList.add("Item 7")
-        itemsList.add("Item 8")
-        itemsList.add("Item 9")
-        itemsList.add("Item 10")
-        itemsList.add("Item 11")
-        itemsList.add("Item 12")
-        itemsList.add("Item 13")
+        var routedescr = "Маршрут номер 1(Тестовый)"
+        var routepoints = ArrayList<RoutePoint>()
+        var routepoint = RoutePoint(59.9786, 30.34853, "Точка 1")
+        routepoints.add(routepoint)
+        routepoints.add(RoutePoint(59.97883058079127, 30.349726356261876, "Точка 2"))
+        var route = Route(routepoints, routedescr)
+        itemsList.add(route)
+        itemsList.add(route.copy())
+        itemsList.add(route.copy())
+        itemsList.add(route.copy())
+
         println("LIst: " + itemsList.size)
         println("DEBUG")
     }

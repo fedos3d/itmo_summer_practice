@@ -9,16 +9,21 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.example.questapp.data.Route
 
-internal class CustomAdapter(private var mycontext: Context, private var names: List<String>) :
+internal class CustomAdapter(private var mycontext: Context, private var names: List<Route>) :
     RecyclerView.Adapter<CustomAdapter.MyViewHolder>() {
 
     class MyViewHolder(context: Context, itemView: View) : RecyclerView.ViewHolder(itemView) {
+        lateinit var route: Route;
         val largeTextView: TextView = itemView.findViewById(R.id.textViewLarge)
         val smallTextView: TextView = itemView.findViewById(R.id.textViewSmall)
         init {
             itemView.setOnClickListener {
-                val intent = Intent(context, StartRouteActivity::class.java)
+                println("ROUTE BEFORE PARCELIZATION: " + route.toString())
+                val intent = Intent(context, StartRouteActivity::class.java).apply {
+                    putExtra("ROUTE", route)
+                }
                 startActivity(context, intent, null)
             }
         }
@@ -32,7 +37,8 @@ internal class CustomAdapter(private var mycontext: Context, private var names: 
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.largeTextView.text = names[position]
+        holder.route = names[position]
+        holder.largeTextView.text = names[position].routeDescription
         holder.smallTextView.text = "кот"
     }
 

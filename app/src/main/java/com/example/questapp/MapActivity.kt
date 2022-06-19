@@ -1,14 +1,21 @@
 package com.example.questapp
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.IntentFilter
+import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.example.questapp.data.Route
+import com.example.questapp.data.RoutePoint
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
@@ -50,8 +57,36 @@ class MapActivity : AppCompatActivity() {
         mRotationGestureOverlay = RotationGestureOverlay(this, map)
         mRotationGestureOverlay.setEnabled(true)
 
-        //Need to add my current location,
+        //Need to work with exception when permission is not granted
+
+        //Need to add my current location, DONE
         //Need to add permission checks
+
+
+        //testing points
+//        var startPoint_1 = GeoPoint(59.9786, 30.34853);
+//        var startMarker =  Marker(map);
+//        startMarker.position = startPoint_1;
+//        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+//        map.overlays.add(startMarker)
+
+        //here we fill map with our points
+
+        var route: Route? = getIntent().getParcelableExtra("ROUTE");
+
+        println("ROUTE after deparcelization: " + route.toString())
+        if (route != null) {
+            for (item: RoutePoint in route.list) {
+                var startPoint_1 = GeoPoint(item.latitude, item.longtitude);
+                var startMarker =  Marker(map);
+                startMarker.position = startPoint_1;
+                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                map.overlays.add(startMarker)
+            }
+        } else {
+            println("NO route info was sent")
+        }
+
 
         map.setMultiTouchControls(true);
         val mapController = map.controller
