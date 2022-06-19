@@ -1,29 +1,42 @@
 package com.example.questapp
 
 
+import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.NonNull
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 
-internal class CustomAdapter(private var itemsList: List<String>) :
+internal class CustomAdapter(private var mycontext: Context, private var names: List<String>) :
     RecyclerView.Adapter<CustomAdapter.MyViewHolder>() {
-    internal inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        var itemTextView: TextView = view.findViewById(R.id.itemTextView)
+
+    class MyViewHolder(context: Context, itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val largeTextView: TextView = itemView.findViewById(R.id.textViewLarge)
+        val smallTextView: TextView = itemView.findViewById(R.id.textViewSmall)
+        init {
+            itemView.setOnClickListener {
+                val intent = Intent(context, StartRouteActivity::class.java)
+                startActivity(context, intent, null)
+            }
+        }
     }
-    @NonNull
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item, parent, false)
-        return MyViewHolder(itemView)
+        val itemView =
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.item, parent, false)
+        return MyViewHolder(mycontext, itemView)
     }
+
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val item = itemsList[position]
-        holder.itemTextView.text = item
+        holder.largeTextView.text = names[position]
+        holder.smallTextView.text = "кот"
     }
+
     override fun getItemCount(): Int {
-        return itemsList.size
+        return names.size
     }
 }

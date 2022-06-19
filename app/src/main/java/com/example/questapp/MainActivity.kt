@@ -9,16 +9,16 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.questapp.databinding.ActivityMainBinding
 import kotlin.math.log
 import kotlin.reflect.typeOf
+//import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    private val itemsList = ArrayList<String>()
-    private lateinit var customAdapter: CustomAdapter
-
+    private lateinit var itemsList: ArrayList<String>
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -27,22 +27,30 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //kinda trying to create recycler view
 
-        customAdapter = CustomAdapter(itemsList)
-        val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
-        println("${recyclerView::class.simpleName}")
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = customAdapter
+//      kinda trying to create recycler view, sorta works
+        itemsList = ArrayList<String>()
         prepareItems()
+        val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
+        val customAdapter = CustomAdapter(this, itemsList)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        val viewManager = LinearLayoutManager(this)
 
-        setSupportActionBar(binding.toolbar)
+        recyclerView.apply {
+            layoutManager = viewManager
+            adapter = customAdapter
+        }
+        customAdapter.notifyDataSetChanged()
+//        binding = ActivityMainBinding.inflate(layoutInflater)
+//        setContentView(binding.root)
+//
+//        setSupportActionBar(binding.toolbar)
 
+//
+        // Fab button
 
-        binding.fab.setOnClickListener { view ->
+        var fab: View = findViewById(R.id.fab)
+        fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
@@ -67,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         itemsList.add("Item 11")
         itemsList.add("Item 12")
         itemsList.add("Item 13")
-        customAdapter.notifyDataSetChanged()
+        println("LIst: " + itemsList.size)
         println("DEBUG")
     }
 
