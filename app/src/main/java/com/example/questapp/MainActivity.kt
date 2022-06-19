@@ -30,6 +30,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
+        //IT SEEMS I GOTTA WRITE MULTITHREAD TO TRACK DISTANCE TO MARKER:
+        //🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯
+
+
 //      kinda trying to create recycler view, sorta works
         itemsList = ArrayList()
         prepareItems()

@@ -1,12 +1,8 @@
 package com.example.questapp
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.IntentFilter
-import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.questapp.data.Route
 import com.example.questapp.data.RoutePoint
@@ -111,4 +107,42 @@ class MapActivity : AppCompatActivity() {
         //Configuration.getInstance().save(this, prefs);
         map.onPause() //needed for compass, my location overlays, v6.0.0 and up
     }
+
+
+    //probably methods to calc distance between current location and markers:
+
+
+//    fun getDistanceMeters(pt1: LatLng, pt2: LatLng): Double {
+//        var distance = 0.0
+//        try {
+//            val theta: Double = pt1.longitude - pt2.longitude
+//            var dist =
+//                (Math.sin(Math.toRadians(pt1.latitude)) * Math.sin(Math.toRadians(pt2.latitude))
+//                        + Math.cos(Math.toRadians(pt1.latitude)) * Math.cos(Math.toRadians(pt2.latitude)) * Math.cos(
+//                    Math.toRadians(theta)
+//                ))
+//            dist = Math.acos(dist)
+//            dist = Math.toDegrees(dist)
+//            distance = dist * 60 * 1853.1596
+//        } catch (ex: Exception) {
+//            println(ex.message)
+//        }
+//        return distance
+//    }
+
+//    fun checkDistanceIsClose(pt1: LatLng, pt2: LatLng, distance: Double): Boolean {
+//        var isInDistance = false;
+//        try{
+//            var calcDistance = getDistanceMeters(pt1, pt2)
+//
+//            if(distance <= calcDistance){
+//                isInDistance = true;
+//            }
+//        }
+//        catch (ex: Exception){
+//            println(ex.message);
+//        }
+//        return isInDistance;
+//    }
+
 }
