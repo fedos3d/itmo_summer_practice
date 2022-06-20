@@ -1,22 +1,23 @@
 package com.example.questapp
 
+
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.questapp.data.Route
 import com.example.questapp.data.RoutePoint
 import com.example.questapp.databinding.ActivityMainBinding
-import kotlin.math.log
-import kotlin.reflect.typeOf
+import com.google.android.material.snackbar.Snackbar
+import com.yarolegovich.discretescrollview.DiscreteScrollView
+
+
 //import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -35,23 +36,36 @@ class MainActivity : AppCompatActivity() {
 
 
 //      kinda trying to create recycler view, sorta works
+        // Test Data Fill
         itemsList = ArrayList()
         prepareItems()
-        val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
+
+
+//        val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
+//        val customAdapter = CustomAdapter(this, itemsList)
+//
+//        val viewManager = LinearLayoutManager(this)
+//
+//        recyclerView.apply {
+//            layoutManager = viewManager
+//            adapter = customAdapter
+//        }
+//        customAdapter.notifyDataSetChanged()
+
         val customAdapter = CustomAdapter(this, itemsList)
-
-        val viewManager = LinearLayoutManager(this)
-
-        recyclerView.apply {
-            layoutManager = viewManager
-            adapter = customAdapter
-        }
+        val scrollView = findViewById<DiscreteScrollView>(R.id.recyclerView)
+        scrollView.adapter = CustomAdapter(this, itemsList)
         customAdapter.notifyDataSetChanged()
 //        binding = ActivityMainBinding.inflate(layoutInflater)
 //        setContentView(binding.root)
 //
 //        setSupportActionBar(binding.toolbar)
 
+        // Set action bar
+        var actionBar: View? = findViewById(R.id.appBarLayout2)
+        if (actionBar != null) {
+            actionBar.isVisible = false
+        }
 //
         // Fab button
 
