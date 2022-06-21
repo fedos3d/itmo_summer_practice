@@ -1,6 +1,5 @@
 package com.example.questapp
 
-
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -67,12 +66,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun prepareItems() {
-        var routedescr = "Маршрут номер 1(Тестовый)"
+        var routeTitle = "Маршрут номер 1(Тестовый)"
+        var routeDescr = "В данном квесте бла бла бла бла бла"
         var routepoints = ArrayList<RoutePoint>()
+        var routePic = "https://sun9-87.userapi.com/impf/mqi-t8BU4HQ5CPhm1Gd-hyBJeUJIejlH-AI5fA/wl1Owod-VL4.jpg?size=1280x1281&quality=95&sign=d89be3e82b5dfe28a6421c61250010c0&type=album"
         var routepoint = RoutePoint(59.9786, 30.34853, "Точка 1")
         routepoints.add(routepoint)
         routepoints.add(RoutePoint(59.97883058079127, 30.349726356261876, "Точка 2"))
-        var route = Route(routepoints, routedescr)
+        var route = Route(routepoints, routeTitle, routeDescr, routePic)
         itemsList.add(route)
         itemsList.add(route.copy())
         itemsList.add(route.copy())
