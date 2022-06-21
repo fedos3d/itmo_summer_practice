@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.navigation.ui.AppBarConfiguration
 import com.example.questapp.data.Route
 import com.example.questapp.databinding.ActivityStartRouteBinding
@@ -28,6 +29,11 @@ class StartRouteActivity : AppCompatActivity() {
 //            state.apply {
 //                text = resources.getText(R.string.route_in_progress)
 //            }
+//        }
+
+//        var actionBar: View? = findViewById(R.id.appBarLayout)
+//        if (actionBar != null) {
+//            actionBar.isVisible = false
 //        }
 
 
