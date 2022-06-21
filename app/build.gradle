@@ -38,7 +38,8 @@ android {
 dependencies {
 //    implementation 'com.yarolegovich:discrete-scrollview:1.5.1' //does not work
     implementation 'com.squareup.picasso:picasso:2.8'
-    implementation 'com.github.yarolegovich:DiscreteScrollView:1.5.1'
+    implementation 'com.github.yarolegovich:DiscreteScrollView:1.5.1' // v_1
+    implementation 'com.github.yuyakaido:CardStackView:2.3.4' // v_2
     implementation 'org.osmdroid:osmdroid-android:6.1.13'
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'

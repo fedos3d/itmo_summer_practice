@@ -25,17 +25,13 @@
     </com.google.android.material.appbar.AppBarLayout>
 
 
-    <com.yarolegovich.discretescrollview.DiscreteScrollView
-        android:id="@+id/recyclerView"
+    <com.yuyakaido.android.cardstackview.CardStackView
+        android:id="@+id/card_stack_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:dsv_orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout2"
-        app:layout_constraintVertical_bias="0.643" />
+        android:padding="4dp"
+        android:clipToPadding="false">
+    </com.yuyakaido.android.cardstackview.CardStackView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"

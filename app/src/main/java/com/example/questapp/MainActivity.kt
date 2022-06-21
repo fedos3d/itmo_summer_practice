@@ -16,6 +16,8 @@ import com.example.questapp.data.RoutePoint
 import com.example.questapp.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
 import com.yarolegovich.discretescrollview.DiscreteScrollView
+import com.yuyakaido.android.cardstackview.CardStackLayoutManager
+import com.yuyakaido.android.cardstackview.CardStackView
 
 
 //import kotlinx.android.synthetic.main.activity_main.*
@@ -52,10 +54,20 @@ class MainActivity : AppCompatActivity() {
 //        }
 //        customAdapter.notifyDataSetChanged()
 
+
+
+        // Recycler View var 1
+//        val customAdapter = CustomAdapter(this, itemsList)
+//        val scrollView = findViewById<DiscreteScrollView>(R.id.recyclerView)
+//        scrollView.adapter = CustomAdapter(this, itemsList)
+//        customAdapter.notifyDataSetChanged()
+
+
+        // Recycler View var 2
         val customAdapter = CustomAdapter(this, itemsList)
-        val scrollView = findViewById<DiscreteScrollView>(R.id.recyclerView)
-        scrollView.adapter = CustomAdapter(this, itemsList)
-        customAdapter.notifyDataSetChanged()
+        val cardStackView = findViewById<CardStackView>(R.id.card_stack_view)
+        cardStackView.layoutManager = CardStackLayoutManager(this)
+        cardStackView.adapter = customAdapter
 //        binding = ActivityMainBinding.inflate(layoutInflater)
 //        setContentView(binding.root)
 //
