@@ -1,9 +1,13 @@
-package com.example.questapp
+package com.example.questapp.activity
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
+import com.example.questapp.BuildConfig
+import com.example.questapp.MyCustomApplication
+import com.example.questapp.R
 import com.example.questapp.data.Route
 import com.example.questapp.data.RoutePoint
 import org.osmdroid.api.IMapController
@@ -25,9 +29,14 @@ class MapActivity : AppCompatActivity() {
     private lateinit var mLocationOverlay: MyLocationNewOverlay
     private lateinit var mCompassOverlay: CompassOverlay
     private lateinit var mRotationGestureOverlay: RotationGestureOverlay
+    private lateinit var route: Route
+    lateinit var myapp: MyCustomApplication
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
+        myapp = applicationContext as MyCustomApplication
+
 
         var ctx: Context = this
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
@@ -68,7 +77,7 @@ class MapActivity : AppCompatActivity() {
 
         //here we fill map with our points
 
-        var route: Route? = getIntent().getParcelableExtra("ROUTE");
+        route = getIntent().getParcelableExtra("ROUTE")!!;
 
         println("ROUTE after deparcelization: " + route.toString())
         if (route != null) {
@@ -109,6 +118,7 @@ class MapActivity : AppCompatActivity() {
     }
 
 
+
     //probably methods to calc distance between current location and markers:
 
 
@@ -144,5 +154,8 @@ class MapActivity : AppCompatActivity() {
 //        }
 //        return isInDistance;
 //    }
-
+    override fun onDestroy() {
+        myapp.saveStatus()
+        super.onDestroy()
+    }
 }
