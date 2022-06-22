@@ -1,7 +1,6 @@
 package com.example.questapp.activity
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
@@ -81,7 +80,7 @@ class MapActivity : AppCompatActivity() {
 
         println("ROUTE after deparcelization: " + route.toString())
         if (route != null) {
-            for (item: RoutePoint in route.list) {
+            for (item: RoutePoint in route.routePoint) {
                 var startPoint_1 = GeoPoint(item.latitude, item.longtitude);
                 var startMarker =  Marker(map);
                 startMarker.position = startPoint_1;

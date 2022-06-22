@@ -1,15 +1,11 @@
 package com.example.questapp.activity
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.isVisible
 import androidx.navigation.ui.AppBarConfiguration
 import com.example.questapp.CustomAdapter
@@ -18,9 +14,12 @@ import com.example.questapp.R
 import com.example.questapp.data.Route
 import com.example.questapp.data.RoutePoint
 import com.example.questapp.databinding.ActivityMainBinding
+import com.google.gson.Gson
 import com.yarolegovich.discretescrollview.DiscreteScrollView
 import com.yarolegovich.discretescrollview.transform.Pivot
 import com.yarolegovich.discretescrollview.transform.ScaleTransformer
+import okhttp3.*
+import java.io.IOException
 
 
 class MainActivity : AppCompatActivity() {
@@ -29,12 +28,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     lateinit var myapp: MyCustomApplication
+    lateinit var client: OkHttpClient
+    private lateinit var customAdapter: CustomAdapter
 
+    private lateinit var text: String
+    private lateinit var scrollView: DiscreteScrollView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         myapp = applicationContext as MyCustomApplication
+        client = OkHttpClient()
+        itemsList = ArrayList()
+        customAdapter = CustomAdapter(this, itemsList)
+
 
 
         //IT SEEMS I GOTTA WRITE MULTITHREAD TO TRACK DISTANCE TO MARKER:
@@ -43,11 +50,9 @@ class MainActivity : AppCompatActivity() {
         // Need to work through navigation
 
         // Test Data Fill
-        itemsList = ArrayList()
         prepareItems()
 
-        val customAdapter = CustomAdapter(this, itemsList)
-        val scrollView = findViewById<DiscreteScrollView>(R.id.recyclerView)
+        scrollView = findViewById<DiscreteScrollView>(R.id.recyclerView)
 
         // Adds smooth resizing
         scrollView.setItemTransformer(
@@ -82,12 +87,37 @@ class MainActivity : AppCompatActivity() {
                 .setView(inputEditTextField)
                 .setPositiveButton("OK") { _, _ ->
                     val editTextInput = inputEditTextField .text.toString()
-                    // Need to use retrofit or okhttps to retrieve json
+                    getQuest(editTextInput)
                 }
                 .setNegativeButton("Отмена", null)
                 .create()
             dialog.show()
         }
+    }
+
+    fun getQuest(editTextInput: String) {
+        val request = Request.Builder()
+            .url("https://itmo-summer-practice-backend.herokuapp.com/Quest/" + editTextInput)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
+
+//                    for ((name, value) in response.headers) {
+//                        println("$name: $value")
+//                    }
+
+                    // TODO: FIX PROBLEM WITH CUSTOM ADAPTER, ON INSERT I GET OUT OF BOUNDS"
+//                    addNewRoute(response.body!!.string())
+                }
+            }
+        })
     }
 
     private fun prepareItems() {
@@ -103,8 +133,18 @@ class MainActivity : AppCompatActivity() {
         itemsList.add(route.copy(2, routeTitle = "Маршрут номер 2(Тестовый)"))
         itemsList.add(route.copy(3, routeTitle = "Маршрут номер 3(Тестовый)"))
         itemsList.add(route.copy(4, routeTitle = "Маршрут номер 4(Тестовый)"))
-
+        customAdapter.notifyDataSetChanged()
         Log.d("","Route list size: " + itemsList.size)
+    }
+
+    private fun addNewRoute(json: String) {
+        val gson = Gson()
+        var route: Route = gson.fromJson(json, Route::class.java)
+        itemsList.add(route)
+        Log.d("", "ROUTE TO STRING: " + route.toString())
+        Log.d("", "ITEMLISTSIZE: " + itemsList.size)
+        customAdapter.notifyItemInserted(scrollView.currentItem + 1)
+
     }
 
     override fun onDestroy() {
