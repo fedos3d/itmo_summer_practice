@@ -1,136 +1,80 @@
 package com.example.questapp.activity
 
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
+import android.view.MotionEvent
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.example.questapp.R
-import com.google.ar.core.ArCoreApk
-import com.google.ar.core.Config
-import com.google.ar.core.Session
-import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
-import io.github.sceneview.SceneView
-import io.github.sceneview.ar.ArSceneView
-import io.github.sceneview.ar.node.ArModelNode
-import io.github.sceneview.ar.node.EditableTransform
-import io.github.sceneview.ar.node.PlacementMode
-import io.github.sceneview.math.Position
-import io.github.sceneview.utils.getResourceUri
-import io.github.sceneview.utils.setFullScreen
+import com.google.ar.core.*
+import com.google.ar.sceneform.AnchorNode
+import com.google.ar.sceneform.Node
+import com.google.ar.sceneform.SceneView
+import com.google.ar.sceneform.math.Vector3
+import com.google.ar.sceneform.rendering.ModelRenderable
+import com.google.ar.sceneform.rendering.Renderable
+import com.google.ar.sceneform.rendering.ViewRenderable
+import com.google.ar.sceneform.ux.ArFragment
+import com.google.ar.sceneform.ux.TransformableNode
+import com.gorisse.thomas.sceneform.scene.await
 
 class ARCamera : AppCompatActivity() {
-    var mUserRequestedInstall = true
-    lateinit var mSession: Session
-
-    lateinit var sceneView: ArSceneView
-
-    lateinit var modelNode: ArModelNode
-
+    private lateinit var arFragment: ArFragment
+    private val arSceneView get() = arFragment.arSceneView
+    private val scene get() = arSceneView.scene
+    private var model: Renderable? = null
+    private var modelView: ViewRenderable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_arcamera)
-        setFullScreen(
-            findViewById(R.id.rootView),
-            fullScreen = true,
-            hideSystemBars = false,
-            fitsSystemWindows = false
-        )
+        (supportFragmentManager.findFragmentById(R.id.arFragment) as ArFragment)
+            .setOnTapPlaneGlbModel("models/cargo.glb")
 
-        mSession = Session(this)
-        var sceneView: SceneView = findViewById(R.id.sceneView)
-
-        modelNode = ArModelNode(
-            context = this,
-            lifecycle = lifecycle,
-            modelFileLocation = this.getResourceUri(R.raw.cargo),
-            autoAnimate = true,
-            autoScale = false,
-            // Place the model origin at the bottom center
-            centerOrigin = Position(y = -1.0f)
-        ).apply {
-            placementMode = PlacementMode.BEST_AVAILABLE
-            editableTransforms = EditableTransform.ALL
-        }
-        sceneView.apply {
-            addChild(modelNode)
-            // Select the model node by default (the model node is also selected on tap)
-        }
-    }
-    override fun onResume() {
-        super.onResume()
-
-        // ARCore requires camera permission to operate.
-        if (!CameraPermissionHelper.hasCameraPermission(this)) {
-            CameraPermissionHelper.requestCameraPermission(this)
-            return
-        }
-        try {
-            if (mSession == null) {
-                when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
-                    ArCoreApk.InstallStatus.INSTALLED -> {
-                        // Success: Safe to create the AR session.
-                        mSession = Session(this)
-                    }
-                    ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                        // When this method returns `INSTALL_REQUESTED`:
-                        // 1. ARCore pauses this activity.
-                        // 2. ARCore prompts the user to install or update Google Play
-                        //    Services for AR (market://details?id=com.google.ar.core).
-                        // 3. ARCore downloads the latest device profile data.
-                        // 4. ARCore resumes this activity. The next invocation of
-                        //    requestInstall() will either return `INSTALLED` or throw an
-                        //    exception if the installation or update did not succeed.
-                        mUserRequestedInstall = false
-                        return
-                    }
+        arFragment =
+            (supportFragmentManager.findFragmentById(R.id.arFragment) as ArFragment).apply {
+                setOnSessionConfigurationListener { session, config ->
+                    // Modify the AR session configuration here
                 }
-            }
-        } catch (e: UnavailableUserDeclinedInstallationException) {
-            // Display an appropriate message to the user and return gracefully.
-            Toast.makeText(this, "TODO: handle exception " + e, Toast.LENGTH_LONG)
-                .show()
-            return
-
-        }
-    }
-        override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<String>,
-            results: IntArray
-        ) {
-            super.onRequestPermissionsResult(requestCode, permissions, results)
-            if (!CameraPermissionHelper.hasCameraPermission(this)) {
-                Toast.makeText(
-                    this,
-                    "Camera permission is needed to run this application",
-                    Toast.LENGTH_LONG
-                )
-                    .show()
-                if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
-                    // Permission denied with checking "Do not ask again".
-                    CameraPermissionHelper.launchPermissionSettings(this)
+                setOnViewCreatedListener { arSceneView ->
+                    arSceneView.setFrameRateFactor(SceneView.FrameRate.FULL)
                 }
-                finish()
+                setOnTapArPlaneListener { hitResult: HitResult, plane: Plane, motionEvent: MotionEvent ->
+                    if (model == null || modelView == null) {
+                        Toast.makeText(this@ARCamera, "Loading...", Toast.LENGTH_SHORT).show()
+                        return@setOnTapArPlaneListener
+                    }
+
+                    // Create the Anchor.
+                    scene.addChild(AnchorNode(hitResult.createAnchor()).apply {
+                        // Create the transformable model and add it to the anchor.
+                        addChild(TransformableNode(arFragment.transformationSystem).apply {
+                            renderable = model
+                            renderableInstance.setCulling(false)
+                            renderableInstance.animate(true).start()
+                            // Add the View
+                            addChild(Node().apply {
+                                // Define the relative position
+                                localPosition = Vector3(0.0f, 1f, 0.0f)
+                                localScale = Vector3(0.7f, 0.7f, 0.7f)
+                                renderable = modelView
+                            })
+                        })
+                    })
+                }
+
             }
+
+        lifecycleScope.launchWhenCreated {
+            loadModels()
         }
-    fun createSession() {
-        // Create a new ARCore session.
-        mSession = Session(this)
-
-        // Create a session config.
-        val config = Config(mSession)
-
-        // Do feature-specific operations here, such as enabling depth or turning on
-        // support for Augmented Faces.
-
-        // Configure the session.
-        mSession.configure(config)
     }
 
-    override fun onDestroy() {
-        mSession.close()
-        super.onDestroy()
+    private suspend fun loadModels() {
+        model = ModelRenderable.builder()
+            .setSource(this, Uri.parse("models/cargo.glb"))
+            .setIsFilamentGltf(true)
+            .await()
     }
-
 }
