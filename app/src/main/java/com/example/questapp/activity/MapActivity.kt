@@ -166,7 +166,6 @@ class MapActivity : AppCompatActivity() {
 //                                    mSnackbar.show();
                     }
                     mySnackbar.show()
-
                 }
             }
         }
