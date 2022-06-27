@@ -1,17 +1,28 @@
 package com.example.questapp.activity
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.Log
+import android.view.View
+import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.questapp.BuildConfig
 import com.example.questapp.MyCustomApplication
 import com.example.questapp.R
 import com.example.questapp.data.Route
 import com.example.questapp.data.RoutePoint
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.Distance
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
@@ -82,7 +93,7 @@ class MapActivity : AppCompatActivity() {
         if (route != null) {
             for (item: RoutePoint in route.routePoint) {
                 var startPoint_1 = GeoPoint(item.latitude, item.longtitude);
-                var startMarker =  Marker(map);
+                var startMarker = Marker(map);
                 startMarker.position = startPoint_1;
                 startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 map.overlays.add(startMarker)
@@ -97,7 +108,9 @@ class MapActivity : AppCompatActivity() {
         mapController.setZoom(9.5)
         val startPoint = GeoPoint(59.9390507529518, 30.31564101110063)
         mapController.setCenter(startPoint)
+        calcDistanceToPoints()
     }
+
     override fun onResume() {
         super.onResume()
         //this will refresh the osmdroid configuration on resuming.
@@ -117,42 +130,81 @@ class MapActivity : AppCompatActivity() {
     }
 
 
-
     //probably methods to calc distance between current location and markers:
+    fun calcDistanceToPoints() {
 
+        lifecycleScope.launch(Dispatchers.IO) {
+                println("LOLOLOL")
 
-//    fun getDistanceMeters(pt1: LatLng, pt2: LatLng): Double {
-//        var distance = 0.0
-//        try {
-//            val theta: Double = pt1.longitude - pt2.longitude
-//            var dist =
-//                (Math.sin(Math.toRadians(pt1.latitude)) * Math.sin(Math.toRadians(pt2.latitude))
-//                        + Math.cos(Math.toRadians(pt1.latitude)) * Math.cos(Math.toRadians(pt2.latitude)) * Math.cos(
-//                    Math.toRadians(theta)
-//                ))
-//            dist = Math.acos(dist)
-//            dist = Math.toDegrees(dist)
-//            distance = dist * 60 * 1853.1596
-//        } catch (ex: Exception) {
-//            println(ex.message)
-//        }
-//        return distance
-//    }
+            val distances = BooleanArray(route.routePoint.size)
+                println("KEK")
+        for (item in route.routePoint.indices) {
+            distances[item] = false
+        }
+        while (distances.contains(false)) {
+                    println("Indices: " + route.routePoint.indices)
+            for (item in route.routePoint.indices) {
+                delay(10000L)
+                var curPosition = mLocationOverlay.myLocation
+                println("Cur position: " + curPosition.toString())
+                var dist = getDistanceMeters(route.routePoint[item], curPosition)
+                println("Current distance")
+                Log.d("", "Current distance: " + dist)
+                if (checkDistanceIsClose(route.routePoint[item], curPosition, dist)) {
+                    val mySnackbar = Snackbar.make(
+                        findViewById(R.id.mapLayout),
+                        "Вы близко к точке",
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                    delay(10000L)
+                    mySnackbar.setAction("Открыть AR") {
+                        val intent = Intent(this@MapActivity, ARCamera::class.java).apply {
+                            putExtra("ROUTE", route)
+                        }
+                        startActivity(intent)
+//                                    var mSnackbar = Snackbar.make(findViewById(R.id.startRouteLayout), "Message successfully deleted.", Snackbar.LENGTH_SHORT)
+//                                    mSnackbar.show();
+                    }
+                    mySnackbar.show()
 
-//    fun checkDistanceIsClose(pt1: LatLng, pt2: LatLng, distance: Double): Boolean {
-//        var isInDistance = false;
-//        try{
-//            var calcDistance = getDistanceMeters(pt1, pt2)
-//
-//            if(distance <= calcDistance){
-//                isInDistance = true;
-//            }
-//        }
-//        catch (ex: Exception){
-//            println(ex.message);
-//        }
-//        return isInDistance;
-//    }
+                }
+            }
+        }
+    }
+}
+
+   fun getDistanceMeters(pt1: RoutePoint, pt2: GeoPoint): Double {
+        var distance = 0.0
+        try {
+            val theta: Double = pt1.longtitude - pt2.longitude
+            var dist =
+                (Math.sin(Math.toRadians(pt1.latitude)) * Math.sin(Math.toRadians(pt2.latitude))
+                        + Math.cos(Math.toRadians(pt1.latitude)) * Math.cos(Math.toRadians(pt2.latitude)) * Math.cos(
+                    Math.toRadians(theta)
+                ))
+            dist = Math.acos(dist)
+            dist = Math.toDegrees(dist)
+            distance = dist * 60 * 1853.1596
+        } catch (ex: Exception) {
+            println(ex.message)
+        }
+        return distance
+    }
+
+   fun checkDistanceIsClose(pt1: RoutePoint, pt2: GeoPoint, distance: Double): Boolean {
+        var isInDistance = false;
+        try{
+            var calcDistance = getDistanceMeters(pt1, pt2)
+
+            if(distance <= calcDistance){
+                isInDistance = true;
+            }
+        }
+        catch (ex: Exception){
+            println(ex.message);
+        }
+        return isInDistance;
+    }
     override fun onDestroy() {
         myapp.saveStatus()
         super.onDestroy()
