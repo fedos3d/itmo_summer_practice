@@ -28,6 +28,7 @@ class StartRouteActivity : AppCompatActivity() {
         myapp = applicationContext as MyCustomApplication
         val button: Button = findViewById(R.id.start_button)
         val status: TextView = findViewById(R.id.routeStatus)
+        val button_showMap: Button = findViewById(R.id.showMapButton)
         val route: Route? = getIntent().getParcelableExtra("ROUTE")
 
 
@@ -77,6 +78,13 @@ class StartRouteActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Другой квест уже запущен, сначала завершите тот квест", Toast.LENGTH_LONG).show()
             }
+        }
+
+        button_showMap.setOnClickListener {
+                val intent = Intent(this, MapActivity::class.java).apply {
+                    putExtra("ROUTE", route)
+                }
+                startActivity(intent)
         }
     }
 
