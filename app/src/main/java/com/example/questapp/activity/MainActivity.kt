@@ -42,15 +42,8 @@ class MainActivity : AppCompatActivity() {
         itemsList = ArrayList()
         customAdapter = CustomAdapter(this, itemsList)
 
-
-
-        //IT SEEMS I GOTTA WRITE MULTITHREAD TO TRACK DISTANCE TO MARKER:
-        //🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯🌯
-
-        // Need to work through navigation
-
         // Test Data Fill
-        prepareItems()
+//        prepareItems()
 
         scrollView = findViewById<DiscreteScrollView>(R.id.recyclerView)
 
@@ -86,7 +79,7 @@ class MainActivity : AppCompatActivity() {
                 .setMessage("Введите ID квеста для добавления")
                 .setView(inputEditTextField)
                 .setPositiveButton("OK") { _, _ ->
-                    val editTextInput = inputEditTextField .text.toString()
+                    val editTextInput = inputEditTextField.text.toString()
                     getQuest(editTextInput)
                 }
                 .setNegativeButton("Отмена", null)
@@ -109,12 +102,8 @@ class MainActivity : AppCompatActivity() {
                 response.use {
                     if (!response.isSuccessful) throw IOException("Unexpected code $response")
 
-//                    for ((name, value) in response.headers) {
-//                        println("$name: $value")
-//                    }
-
-                    // TODO: FIX PROBLEM WITH CUSTOM ADAPTER, ON INSERT I GET OUT OF BOUNDS"
-//                    addNewRoute(response.body!!.string())
+                    // need to fix recyclerview update
+                    addNewRoute(response.body!!.string())
                 }
             }
         })
@@ -122,9 +111,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun prepareItems() {
         var routeTitle = "Маршрут номер 1(Тестовый)"
-        var routeDescr = "В данном квесте бла бла бла бла бла"
+        var routeDescr = "Описание квеста"
         var routepoints = ArrayList<RoutePoint>()
-        var routePic = "https://sun9-87.userapi.com/impf/mqi-t8BU4HQ5CPhm1Gd-hyBJeUJIejlH-AI5fA/wl1Owod-VL4.jpg?size=1280x1281&quality=95&sign=d89be3e82b5dfe28a6421c61250010c0&type=album"
+        var routePic =
+            "https://sun9-87.userapi.com/impf/mqi-t8BU4HQ5CPhm1Gd-hyBJeUJIejlH-AI5fA/wl1Owod-VL4.jpg?size=1280x1281&quality=95&sign=d89be3e82b5dfe28a6421c61250010c0&type=album"
         var routepoint = RoutePoint(59.9786, 30.34853, "Точка 1")
         routepoints.add(routepoint)
         routepoints.add(RoutePoint(59.97883058079127, 30.349726356261876, "Точка 2"))
@@ -134,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         itemsList.add(route.copy(3, routeTitle = "Маршрут номер 3(Тестовый)"))
         itemsList.add(route.copy(4, routeTitle = "Маршрут номер 4(Тестовый)"))
         customAdapter.notifyDataSetChanged()
-        Log.d("","Route list size: " + itemsList.size)
+        Log.d("", "Route list size: " + itemsList.size)
     }
 
     private fun addNewRoute(json: String) {

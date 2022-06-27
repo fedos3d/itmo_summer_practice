@@ -23,9 +23,10 @@ internal class CustomAdapter(private var mycontext: Context, private var routes:
         lateinit var route: Route;
         val largeTextView: TextView = itemView.findViewById(R.id.textViewLarge)
         val pic: ImageView = itemView.findViewById(R.id.iv_picasso)
+
         init {
             itemView.setOnClickListener {
-                Log.d("","ROUTE BEFORE PARCELIZATION: " + route.toString())
+                Log.d("", "ROUTE BEFORE PARCELIZATION: " + route.toString())
                 val intent = Intent(context, StartRouteActivity::class.java).apply {
                     putExtra("ROUTE", route)
                 }

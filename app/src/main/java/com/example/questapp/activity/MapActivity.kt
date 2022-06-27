@@ -4,9 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.util.Log
-import android.view.View
-import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.questapp.BuildConfig
@@ -16,13 +13,11 @@ import com.example.questapp.data.Route
 import com.example.questapp.data.RoutePoint
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.Distance
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
@@ -73,17 +68,7 @@ class MapActivity : AppCompatActivity() {
         mRotationGestureOverlay.setEnabled(true)
 
         //Need to work with exception when permission is not granted
-
-        //Need to add my current location, DONE
         //Need to add permission checks
-
-
-        //testing points
-//        var startPoint_1 = GeoPoint(59.9786, 30.34853);
-//        var startMarker =  Marker(map);
-//        startMarker.position = startPoint_1;
-//        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-//        map.overlays.add(startMarker)
 
         //here we fill map with our points
 
@@ -108,7 +93,9 @@ class MapActivity : AppCompatActivity() {
         mapController.setZoom(9.5)
         val startPoint = GeoPoint(59.9390507529518, 30.31564101110063)
         mapController.setCenter(startPoint)
-        calcDistanceToPoints()
+        if (myapp.state && myapp.questId == route.id) {
+            calcDistanceToPoints()
+        }
     }
 
     override fun onResume() {
@@ -134,45 +121,40 @@ class MapActivity : AppCompatActivity() {
     fun calcDistanceToPoints() {
 
         lifecycleScope.launch(Dispatchers.IO) {
-                println("LOLOLOL")
-
             val distances = BooleanArray(route.routePoint.size)
-                println("KEK")
-        for (item in route.routePoint.indices) {
-            distances[item] = false
-        }
-        while (distances.contains(false)) {
-                    println("Indices: " + route.routePoint.indices)
             for (item in route.routePoint.indices) {
-                delay(10000L)
-                var curPosition = mLocationOverlay.myLocation
-                println("Cur position: " + curPosition.toString())
-                var dist = getDistanceMeters(route.routePoint[item], curPosition)
-                println("Current distance")
-                Log.d("", "Current distance: " + dist)
-                if (checkDistanceIsClose(route.routePoint[item], curPosition, dist)) {
-                    val mySnackbar = Snackbar.make(
-                        findViewById(R.id.mapLayout),
-                        "Вы близко к точке",
-                        Snackbar.LENGTH_INDEFINITE
-                    )
+                distances[item] = false
+            }
+            while (distances.contains(false)) {
+                println("Indices: " + route.routePoint.indices)
+                for (item in route.routePoint.indices) {
                     delay(10000L)
-                    mySnackbar.setAction("Открыть AR") {
-                        val intent = Intent(this@MapActivity, ARCamera::class.java).apply {
-                            putExtra("ROUTE", route)
+                    var curPosition = mLocationOverlay.myLocation
+                    if (checkDistanceIsClose(route.routePoint[item], curPosition, 30.0)) {
+                        val mySnackbar = Snackbar.make(
+                            findViewById(R.id.mapLayout),
+                            "Вы близко к точке: " + item,
+                            Snackbar.LENGTH_INDEFINITE
+                        )
+                        delay(10000L)
+                        mySnackbar.setAction("Открыть AR") {
+                            val intent = Intent(this@MapActivity, ARCamera::class.java).apply {
+                                putExtra("ROUTE", route)
+                            }
+                            distances[item] = true
+                            startActivity(intent)
                         }
-                        startActivity(intent)
-//                                    var mSnackbar = Snackbar.make(findViewById(R.id.startRouteLayout), "Message successfully deleted.", Snackbar.LENGTH_SHORT)
-//                                    mSnackbar.show();
+                        mySnackbar.show()
                     }
-                    mySnackbar.show()
                 }
             }
+            myapp.state = false
+            myapp.questId = -1
+            finish()
         }
     }
-}
 
-   fun getDistanceMeters(pt1: RoutePoint, pt2: GeoPoint): Double {
+    fun getDistanceMeters(pt1: RoutePoint, pt2: GeoPoint): Double {
         var distance = 0.0
         try {
             val theta: Double = pt1.longtitude - pt2.longitude
@@ -190,20 +172,20 @@ class MapActivity : AppCompatActivity() {
         return distance
     }
 
-   fun checkDistanceIsClose(pt1: RoutePoint, pt2: GeoPoint, distance: Double): Boolean {
+    fun checkDistanceIsClose(pt1: RoutePoint, pt2: GeoPoint, distance: Double): Boolean {
         var isInDistance = false;
-        try{
+        try {
             var calcDistance = getDistanceMeters(pt1, pt2)
 
-            if(distance <= calcDistance){
+            if (distance <= calcDistance) {
                 isInDistance = true;
             }
-        }
-        catch (ex: Exception){
+        } catch (ex: Exception) {
             println(ex.message);
         }
         return isInDistance;
     }
+
     override fun onDestroy() {
         myapp.saveStatus()
         super.onDestroy()

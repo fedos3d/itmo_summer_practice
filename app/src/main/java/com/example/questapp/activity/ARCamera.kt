@@ -30,7 +30,7 @@ class ARCamera : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_arcamera)
         (supportFragmentManager.findFragmentById(R.id.arFragment) as ArFragment)
-            .setOnTapPlaneGlbModel("models/cargo.glb")
+            .setOnTapPlaneGlbModel("models/text.glb")
 
         arFragment =
             (supportFragmentManager.findFragmentById(R.id.arFragment) as ArFragment).apply {
@@ -73,7 +73,7 @@ class ARCamera : AppCompatActivity() {
 
     private suspend fun loadModels() {
         model = ModelRenderable.builder()
-            .setSource(this, Uri.parse("models/cargo.glb"))
+            .setSource(this, Uri.parse("models/text.glb"))
             .setIsFilamentGltf(true)
             .await()
     }
